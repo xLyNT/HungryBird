@@ -170,6 +170,7 @@ const handleLogin = async () => {
       console.debug('TEST DATA',data);
       if(data.id){
         userId.value = data.id;
+        name.value = data.first_name;
       }else{
         throw new Error('Ошибка при поиске пользователя');
       }
@@ -188,8 +189,6 @@ const handleSelectDates = async () => {
   if (!hasErrors) {
 
     try {
-      console.debug('DATES', selectedDates.value);
-
 
       const response = await fetch(`https://api-teens.chaika.team/work-shifts`, {
         method: 'POST',
@@ -203,13 +202,11 @@ const handleSelectDates = async () => {
 
       const data = await response.json();
 
-      requestResult.value = data.message ?? requestResult.value;
-      if (!data.data.length) {
-        requestResult.value = data.message ?? 'Ошибка выбора смены'
+      if (data.message) {
+        requestResult.value = data.message;
       }
 
       shiftSelected.value = true;
-      setTimeout(close, 3000);
 
     } catch (error) {
       console.error('Ошибка:', error);
