@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import Modal from './Modal.vue';
 import RequestForm from "./RequestForm.vue";
+import ShiftForm from "@/components/ShiftForm.vue";
 import simeiz1 from '@/assets/sliders/simeiz/slideOne.png';
 import simeiz2 from '@/assets/sliders/simeiz/slideTwo.png';
 import simeiz3 from '@/assets/sliders/simeiz/slideThree.png';
@@ -9,21 +10,12 @@ import primorskiy1 from '@/assets/sliders/primorskiy/slideOne.png';
 import primorskiy2 from '@/assets/sliders/primorskiy/slideTwo.png';
 import primorskiy3 from '@/assets/sliders/primorskiy/slideThree.png';
 import primorskiy4 from '@/assets/sliders/primorskiy/slideFour.png';
-const isModalOpen = ref(false);
+const isRegisterModal = ref(false);
+const isSelectModal = ref(false);
 const activeModal = ref('top');
 const place = ref('Приморский пляж');
-const sliderSimeizImages = ref([
-    { image: simeiz1 },
-    { image: simeiz2 },
-    { image: simeiz3 },
-    { image: simeiz4 }
-]);
-const sliderPrimorskiyImages = ref([
-    { image: primorskiy1 },
-    { image: primorskiy2 },
-    { image: primorskiy3 },
-    { image: primorskiy4 }
-]);
+const sliderSimeizImages = ref([simeiz1, simeiz2, simeiz3, simeiz4]);
+const sliderPrimorskiyImages = ref([primorskiy1, primorskiy2, primorskiy3, primorskiy4]);
 const sliderSimeizCurrent = ref(0);
 const sliderPrimorskiyCurrent = ref(0);
 let sliderSimeizInterval;
@@ -70,13 +62,19 @@ const resetSliderInterval = (slider) => {
         sliderPrimorskiyInterval = setInterval(() => nextSlide('sliderPrimorskiy'), 5000);
     }
 };
-const openModal = (type) => {
+const openRegisterModal = (type) => {
     activeModal.value = type;
     place.value = type === 'top' ? 'Симеиз пляж' : 'Приморский пляж';
-    isModalOpen.value = true;
+    isRegisterModal.value = true;
+};
+const openSelectModal = (type) => {
+    activeModal.value = type;
+    place.value = type === 'top' ? 'Симеиз пляж' : 'Приморский пляж';
+    isSelectModal.value = true;
 };
 const closeModal = () => {
-    isModalOpen.value = false;
+    isRegisterModal.value = false;
+    isSelectModal.value = false;
 };
 onMounted(() => {
     updateSliderPosition();
@@ -91,29 +89,38 @@ debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_directives;
+/** @type {__VLS_StyleScopedClasses['first-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['second-screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['first-screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['logo']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['second-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['content']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['third-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-wrapper']} */ ;
-/** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
-/** @type {__VLS_StyleScopedClasses['top-buttons']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-top']} */ ;
 /** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-bottom']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-controls']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider']} */ ;
 /** @type {__VLS_StyleScopedClasses['slide']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['first-screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['logo']} */ ;
+/** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['second-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['content']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['third-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-wrapper']} */ ;
-/** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
-/** @type {__VLS_StyleScopedClasses['top-buttons']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-top']} */ ;
 /** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-bottom']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-controls']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
 // CSS variable injection 
@@ -130,8 +137,14 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.img, __VLS_intrinsicElements.img)({
     ...{ class: "fullscreen-image" },
     alt: "",
-    src: "../assets/PageOne.png",
+    src: "../assets/images/PageOne.jpg",
 });
+__VLS_asFunctionalElement(__VLS_intrinsicElements.img, __VLS_intrinsicElements.img)({
+    ...{ class: "logo" },
+    alt: "",
+    src: "../assets/images/logo.svg",
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "screen second-screen" },
 });
@@ -144,11 +157,19 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({
     ...{ class: "heading" },
 });
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "block-text" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
+    ...{ class: "menu" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "download-button" },
+});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
@@ -160,6 +181,10 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3
     ...{ class: "heading" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
@@ -188,30 +213,33 @@ for (const [slide, index] of __VLS_getVForSourceType((__VLS_ctx.sliderSimeizImag
         key: ('sliderSimeiz-' + index),
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.img, __VLS_intrinsicElements.img)({
-        src: (slide.image),
+        src: (slide),
         alt: "",
     });
 }
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "slider-top" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.openRegisterModal('top');
+        } },
+    ...{ class: "apply-button" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.openSelectModal('top');
+        } },
+    ...{ class: "apply-button" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "slider-bottom" },
+});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({
     ...{ class: "slider-heading" },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "top-buttons" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-    ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('top');
-        } },
-    ...{ class: "apply-button" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-    ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('top');
-        } },
-    ...{ class: "apply-button" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "slider-controls" },
 });
@@ -269,30 +297,33 @@ for (const [slide, index] of __VLS_getVForSourceType((__VLS_ctx.sliderPrimorskiy
         key: ('sliderPrimorskiy-' + index),
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.img, __VLS_intrinsicElements.img)({
-        src: (slide.image),
+        src: (slide),
         alt: "",
     });
 }
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "slider-top" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.openRegisterModal('top');
+        } },
+    ...{ class: "apply-button" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.openSelectModal('top');
+        } },
+    ...{ class: "apply-button" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "slider-bottom" },
+});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({
     ...{ class: "slider-heading" },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "top-buttons" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-    ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('top');
-        } },
-    ...{ class: "apply-button" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-    ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('top');
-        } },
-    ...{ class: "apply-button" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "slider-controls" },
 });
@@ -336,7 +367,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.path)({
     'stroke-linecap': "round",
     'stroke-linejoin': "round",
 });
-if (__VLS_ctx.isModalOpen) {
+if (__VLS_ctx.isRegisterModal) {
     /** @type {[typeof Modal, typeof Modal, ]} */ ;
     // @ts-ignore
     const __VLS_0 = __VLS_asFunctionalComponent(Modal, new Modal({
@@ -352,6 +383,9 @@ if (__VLS_ctx.isModalOpen) {
         onClose: (__VLS_ctx.closeModal)
     };
     __VLS_2.slots.default;
+    {
+        const { header: __VLS_thisSlot } = __VLS_2.slots;
+    }
     /** @type {[typeof RequestForm, ]} */ ;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent(RequestForm, new RequestForm({
@@ -371,16 +405,58 @@ if (__VLS_ctx.isModalOpen) {
     var __VLS_9;
     var __VLS_2;
 }
+if (__VLS_ctx.isSelectModal) {
+    /** @type {[typeof Modal, typeof Modal, ]} */ ;
+    // @ts-ignore
+    const __VLS_14 = __VLS_asFunctionalComponent(Modal, new Modal({
+        ...{ 'onClose': {} },
+    }));
+    const __VLS_15 = __VLS_14({
+        ...{ 'onClose': {} },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_14));
+    let __VLS_17;
+    let __VLS_18;
+    let __VLS_19;
+    const __VLS_20 = {
+        onClose: (__VLS_ctx.closeModal)
+    };
+    __VLS_16.slots.default;
+    {
+        const { header: __VLS_thisSlot } = __VLS_16.slots;
+    }
+    /** @type {[typeof ShiftForm, ]} */ ;
+    // @ts-ignore
+    const __VLS_21 = __VLS_asFunctionalComponent(ShiftForm, new ShiftForm({
+        ...{ 'onClose': {} },
+        place: (__VLS_ctx.place),
+    }));
+    const __VLS_22 = __VLS_21({
+        ...{ 'onClose': {} },
+        place: (__VLS_ctx.place),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_21));
+    let __VLS_24;
+    let __VLS_25;
+    let __VLS_26;
+    const __VLS_27 = {
+        onClose: (__VLS_ctx.closeModal)
+    };
+    var __VLS_23;
+    var __VLS_16;
+}
 /** @type {__VLS_StyleScopedClasses['landing-page']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['first-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['fullscreen-image-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['fullscreen-image']} */ ;
+/** @type {__VLS_StyleScopedClasses['logo']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['second-screen']} */ ;
 /** @type {__VLS_StyleScopedClasses['content']} */ ;
 /** @type {__VLS_StyleScopedClasses['block']} */ ;
 /** @type {__VLS_StyleScopedClasses['heading']} */ ;
+/** @type {__VLS_StyleScopedClasses['block-text']} */ ;
+/** @type {__VLS_StyleScopedClasses['menu']} */ ;
+/** @type {__VLS_StyleScopedClasses['download-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['block']} */ ;
 /** @type {__VLS_StyleScopedClasses['heading']} */ ;
 /** @type {__VLS_StyleScopedClasses['screen']} */ ;
@@ -389,20 +465,22 @@ if (__VLS_ctx.isModalOpen) {
 /** @type {__VLS_StyleScopedClasses['slider-wrapper']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider']} */ ;
 /** @type {__VLS_StyleScopedClasses['slide']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-top']} */ ;
+/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-bottom']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
-/** @type {__VLS_StyleScopedClasses['top-buttons']} */ ;
-/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-controls']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-wrapper']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider']} */ ;
 /** @type {__VLS_StyleScopedClasses['slide']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-top']} */ ;
+/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['slider-bottom']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-heading']} */ ;
-/** @type {__VLS_StyleScopedClasses['top-buttons']} */ ;
-/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['apply-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['slider-controls']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['round-button']} */ ;
@@ -412,13 +490,16 @@ const __VLS_self = (await import('vue')).defineComponent({
         return {
             Modal: Modal,
             RequestForm: RequestForm,
-            isModalOpen: isModalOpen,
+            ShiftForm: ShiftForm,
+            isRegisterModal: isRegisterModal,
+            isSelectModal: isSelectModal,
             place: place,
             sliderSimeizImages: sliderSimeizImages,
             sliderPrimorskiyImages: sliderPrimorskiyImages,
             nextSlide: nextSlide,
             prevSlide: prevSlide,
-            openModal: openModal,
+            openRegisterModal: openRegisterModal,
+            openSelectModal: openSelectModal,
             closeModal: closeModal,
         };
     },

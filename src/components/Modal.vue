@@ -1,19 +1,19 @@
 <template>
   <div class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
-<!--      <div class="header">-->
-<!--        <slot name="header"></slot>-->
-<!--        <div class="close-button" @click="closeModal">-->
-<!--          <img alt="" :src="CloseIcon"/>-->
-<!--        </div>-->
-<!--      </div>-->
+      <div class="header">
+        <slot name="header"></slot>
+        <div class="close-button" @click="closeModal">
+          <img alt="" :src="CloseIcon"/>
+        </div>
+      </div>
       <slot></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '../assets/close.svg';
+import CloseIcon from '../assets/images/close.svg';
 
 const emit = defineEmits(['close']);
 
@@ -36,23 +36,25 @@ const closeModal = () => {
   font-family: 'Phonk Sans', sans-serif;
 
   .modal-content {
-    border-radius: 8px;
     width: 440px;
     color: #000;
-
+    background: #F8DE03;
+    padding: 20px;
+    border-radius: 40px;
+    font-family: 'Phonk Sans', sans-serif;
+    position: relative;
     @media (max-width: 768px) {
       width: 90%;
       max-height: 80vh;
     }
 
     .header {
-      position: relative;
-      padding-top:20px;
+      margin-bottom: 20px;
       .close-button {
         position: absolute;
         cursor: pointer;
-        top: 10px;
-        right: 10px;
+        top: 20px;
+        right: 20px;
       }
     }
 

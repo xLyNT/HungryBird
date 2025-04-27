@@ -1,6 +1,5 @@
 <template>
-  <form class="form" @submit.prevent="handleSubmit">
-    <!-- Имя -->
+  <form class="form" v-if="!submitted" @submit.prevent="handleSubmit">
     <div class="form-group">
       <input
           v-model="formData.name"
@@ -10,20 +9,16 @@
       />
       <div v-if="errors.name" class="error-message">{{ errors.name }}</div>
     </div>
-
-    <!-- Возраст -->
     <div class="form-group">
       <input
-          v-model="formData.age"
-          type="number"
+          v-model="formData.lastName"
+          type="text"
           class="text-input"
-          placeholder="Возраст (14-18)"
-          @input="validateAge"
+          placeholder="Фамилия"
       />
-      <div v-if="errors.age" class="error-message">{{ errors.age }}</div>
+      <div v-if="errors.lastName" class="error-message">{{ errors.lastName }}</div>
     </div>
 
-    <!-- Телефон -->
     <div class="form-group">
       <input
           v-model="formData.phone"
@@ -36,74 +31,48 @@
       <div v-if="errors.phone" class="error-message">{{ errors.phone }}</div>
     </div>
 
-    <!-- Даты -->
     <div class="form-group">
       <input
-          ref="dateInput"
-          type="text"
-          class="text-input flatpickr-input"
-          placeholder="Выберите даты"
+          v-model="formData.age"
+          type="number"
+          class="text-input"
+          placeholder="Возраст (14-18)"
+          @input="validateAge"
       />
-      <div v-if="errors.dates" class="error-message">{{ errors.dates }}</div>
+      <div v-if="errors.age" class="error-message">{{ errors.age }}</div>
     </div>
 
     <button type="submit">Отправить</button>
   </form>
+  <div class="form-submitted" v-else>
+    {{ requestResult }}
+  </div>
 </template>
 
 <script setup>
-import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import {Russian} from 'flatpickr/dist/l10n/ru';
-import {onMounted, onUnmounted, ref, nextTick} from "vue";
+import {ref} from "vue";
 
 const emit = defineEmits(['close']);
 const props = defineProps({
   place:String
 })
+const submitted = ref(false);
+const requestResult = ref('Успешная регистрация!')
 
 const formData = ref({
   name: '',
+  lastName:'',
   phone: '',
   age: '',
-  dates: []
 });
 
 const errors = ref({
   name: '',
+  lastName:'',
   phone: '',
   age: '',
-  dates: ''
 });
-
-const flatpickrInstance = ref(null);
-const dateInput = ref(null);
-
-// Инициализация flatpickr
-const initFlatpickr = () => {
-  nextTick(() => {
-    if (!dateInput.value) return;
-
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 90);
-
-    flatpickrInstance.value = flatpickr(dateInput.value, {
-      mode: "multiple",
-      dateFormat: "d.m.Y",
-      minDate: "today",
-      maxDate: maxDate,
-      allowInput: true,
-      placeholder: "Выберите даты",
-      locale: Russian,
-      onChange: (selectedDates) => {
-        formData.value.dates = selectedDates.map(date =>
-            flatpickrInstance.value.formatDate(date, 'd.m.Y')
-        );
-        validateDates();
-      }
-    });
-  });
-};
 
 // Маска телефона
 const formatPhone = (event) => {
@@ -175,51 +144,41 @@ const validateAge = () => {
   }
 };
 
-// Валидация дат
-const validateDates = () => {
-  if (!formData.value.dates || formData.value.dates.length === 0) {
-    errors.value.dates = 'Пожалуйста, выберите даты';
-  } else {
-    errors.value.dates = '';
-  }
-};
 const handleSubmit = async () => {
   validatePhone();
   validateAge();
-  validateDates();
 
-  // Проверяем, есть ли ошибки
   const hasErrors = Object.values(errors.value).some(error => error !== '');
 
   if (!hasErrors) {
 
     try {
-      console.debug('TEST',formData.value)
-      // Формирование сообщения
-      const message = `📋 Новая заявка\n\n` +
-          `👤 Имя: ${formData.value.name}\n` +
-          `👤 Возраст: ${formData.value.age}\n` +
-          `📱 Телефон: ${formData.value.phone}\n` +
-          `🏢 Заведение: ${props.place}\n` +
-          `📅 Выбранные даты:\n${formData.value.dates.map(d => `       • ${d.trim()}`).join('\n')}`;
-
-      const response = await fetch(`https://api.telegram.org/bot${import.meta.env.VITE_BOT_TOKEN}/sendMessage`, {
+      const response = await fetch(`https://api-teens.chaika.team/users`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          chat_id: import.meta.env.VITE_CHAT_ID,
-          text: message
+          first_name:formData.value.name,
+          last_name:formData.value.lastName,
+          age:formData.value.age,
+          phone:formData.value.phone.replace(/[^\d+]/g, ''),
+          telegram_chat_id: import.meta.env.VITE_CHAT_ID,
         })
       });
 
       const data = await response.json();
 
-      if (!data.ok) throw new Error('Ошибка Telegram API');
+      if (!data?.id){
+        requestResult.value = data.detail ?? 'Ошибка при регистрации пользователя';
+        submitted.value = true;
+        throw new Error(data.detail  ?? 'Ошибка при регистрации пользователя');
+      }
+
+      submitted.value = true;
+      setTimeout(close,3000)
 
     } catch (error) {
       console.error('Ошибка:', error);
     }
-    close();
   }
 };
 
@@ -227,24 +186,10 @@ const close = () => {
   emit('close');
 };
 
-onMounted(() => {
-  initFlatpickr();
-});
-
-onUnmounted(() => {
-  if (flatpickrInstance.value) {
-    flatpickrInstance.value.destroy();
-  }
-});
 </script>
 
 <style lang="scss" scoped>
 .form {
-  background: #F8DE03;
-  padding: 20px;
-  border-radius: 40px;
-  width: 100%;
-  font-family: 'Phonk Sans', sans-serif;
   .form-group {
     margin-bottom: 15px;
     position: relative;

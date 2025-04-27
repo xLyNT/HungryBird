@@ -1,47 +1,23 @@
-import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { Russian } from 'flatpickr/dist/l10n/ru';
-import { onMounted, onUnmounted, ref, nextTick } from "vue";
+import { ref } from "vue";
 const emit = defineEmits(['close']);
 const props = defineProps({
     place: String
 });
+const submitted = ref(false);
+const requestResult = ref('Успешная регистрация!');
 const formData = ref({
     name: '',
+    lastName: '',
     phone: '',
     age: '',
-    dates: []
 });
 const errors = ref({
     name: '',
+    lastName: '',
     phone: '',
     age: '',
-    dates: ''
 });
-const flatpickrInstance = ref(null);
-const dateInput = ref(null);
-// Инициализация flatpickr
-const initFlatpickr = () => {
-    nextTick(() => {
-        if (!dateInput.value)
-            return;
-        const maxDate = new Date();
-        maxDate.setDate(maxDate.getDate() + 90);
-        flatpickrInstance.value = flatpickr(dateInput.value, {
-            mode: "multiple",
-            dateFormat: "d.m.Y",
-            minDate: "today",
-            maxDate: maxDate,
-            allowInput: true,
-            placeholder: "Выберите даты",
-            locale: Russian,
-            onChange: (selectedDates) => {
-                formData.value.dates = selectedDates.map(date => flatpickrInstance.value.formatDate(date, 'd.m.Y'));
-                validateDates();
-            }
-        });
-    });
-};
 // Маска телефона
 const formatPhone = (event) => {
     let input = event.target;
@@ -109,60 +85,40 @@ const validateAge = () => {
         errors.value.age = '';
     }
 };
-// Валидация дат
-const validateDates = () => {
-    if (!formData.value.dates || formData.value.dates.length === 0) {
-        errors.value.dates = 'Пожалуйста, выберите даты';
-    }
-    else {
-        errors.value.dates = '';
-    }
-};
 const handleSubmit = async () => {
     validatePhone();
     validateAge();
-    validateDates();
-    // Проверяем, есть ли ошибки
     const hasErrors = Object.values(errors.value).some(error => error !== '');
     if (!hasErrors) {
         try {
-            console.debug('TEST', formData.value);
-            // Формирование сообщения
-            const message = `📋 Новая заявка\n\n` +
-                `👤 Имя: ${formData.value.name}\n` +
-                `👤 Возраст: ${formData.value.age}\n` +
-                `📱 Телефон: ${formData.value.phone}\n` +
-                `🏢 Заведение: ${props.place}\n` +
-                `📅 Выбранные даты:\n${formData.value.dates.map(d => `       • ${d.trim()}`).join('\n')}`;
-            const response = await fetch(`https://api.telegram.org/bot${import.meta.env.VITE_BOT_TOKEN}/sendMessage`, {
+            const response = await fetch(`https://api-teens.chaika.team/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: import.meta.env.VITE_CHAT_ID,
-                    text: message
+                    first_name: formData.value.name,
+                    last_name: formData.value.lastName,
+                    age: formData.value.age,
+                    phone: formData.value.phone.replace(/[^\d+]/g, ''),
+                    telegram_chat_id: import.meta.env.VITE_CHAT_ID,
                 })
             });
             const data = await response.json();
-            if (!data.ok)
-                throw new Error('Ошибка Telegram API');
+            if (!data?.id) {
+                requestResult.value = data.detail ?? 'Ошибка при регистрации пользователя';
+                submitted.value = true;
+                throw new Error(data.detail ?? 'Ошибка при регистрации пользователя');
+            }
+            submitted.value = true;
+            setTimeout(close, 3000);
         }
         catch (error) {
             console.error('Ошибка:', error);
         }
-        close();
     }
 };
 const close = () => {
     emit('close');
 };
-onMounted(() => {
-    initFlatpickr();
-});
-onUnmounted(() => {
-    if (flatpickrInstance.value) {
-        flatpickrInstance.value.destroy();
-    }
-});
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;
@@ -170,77 +126,84 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['text-input']} */ ;
 // CSS variable injection 
 // CSS variable injection end 
-__VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
-    ...{ onSubmit: (__VLS_ctx.handleSubmit) },
-    ...{ class: "form" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "form-group" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
-    value: (__VLS_ctx.formData.name),
-    type: "text",
-    ...{ class: "text-input" },
-    placeholder: "Имя",
-});
-if (__VLS_ctx.errors.name) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "error-message" },
+if (!__VLS_ctx.submitted) {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
+        ...{ onSubmit: (__VLS_ctx.handleSubmit) },
+        ...{ class: "form" },
     });
-    (__VLS_ctx.errors.name);
-}
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "form-group" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
-    ...{ onInput: (__VLS_ctx.validateAge) },
-    type: "number",
-    ...{ class: "text-input" },
-    placeholder: "Возраст (14-18)",
-});
-(__VLS_ctx.formData.age);
-if (__VLS_ctx.errors.age) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "error-message" },
+        ...{ class: "form-group" },
     });
-    (__VLS_ctx.errors.age);
-}
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "form-group" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
-    ...{ onInput: (__VLS_ctx.formatPhone) },
-    ...{ onKeydown: (__VLS_ctx.handlePhoneKeydown) },
-    type: "tel",
-    ...{ class: "text-input" },
-    placeholder: "+7 (___) ___-__-__",
-});
-(__VLS_ctx.formData.phone);
-if (__VLS_ctx.errors.phone) {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
+        value: (__VLS_ctx.formData.name),
+        type: "text",
+        ...{ class: "text-input" },
+        placeholder: "Имя",
+    });
+    if (__VLS_ctx.errors.name) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "error-message" },
+        });
+        (__VLS_ctx.errors.name);
+    }
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "error-message" },
+        ...{ class: "form-group" },
     });
-    (__VLS_ctx.errors.phone);
-}
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "form-group" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
-    ref: "dateInput",
-    type: "text",
-    ...{ class: "text-input flatpickr-input" },
-    placeholder: "Выберите даты",
-});
-/** @type {typeof __VLS_ctx.dateInput} */ ;
-if (__VLS_ctx.errors.dates) {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
+        value: (__VLS_ctx.formData.lastName),
+        type: "text",
+        ...{ class: "text-input" },
+        placeholder: "Фамилия",
+    });
+    if (__VLS_ctx.errors.lastName) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "error-message" },
+        });
+        (__VLS_ctx.errors.lastName);
+    }
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "error-message" },
+        ...{ class: "form-group" },
     });
-    (__VLS_ctx.errors.dates);
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
+        ...{ onInput: (__VLS_ctx.formatPhone) },
+        ...{ onKeydown: (__VLS_ctx.handlePhoneKeydown) },
+        type: "tel",
+        ...{ class: "text-input" },
+        placeholder: "+7 (___) ___-__-__",
+    });
+    (__VLS_ctx.formData.phone);
+    if (__VLS_ctx.errors.phone) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "error-message" },
+        });
+        (__VLS_ctx.errors.phone);
+    }
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "form-group" },
+    });
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.input)({
+        ...{ onInput: (__VLS_ctx.validateAge) },
+        type: "number",
+        ...{ class: "text-input" },
+        placeholder: "Возраст (14-18)",
+    });
+    (__VLS_ctx.formData.age);
+    if (__VLS_ctx.errors.age) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "error-message" },
+        });
+        (__VLS_ctx.errors.age);
+    }
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+        type: "submit",
+    });
 }
-__VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-    type: "submit",
-});
+else {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "form-submitted" },
+    });
+    (__VLS_ctx.requestResult);
+}
 /** @type {__VLS_StyleScopedClasses['form']} */ ;
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-input']} */ ;
@@ -253,8 +216,8 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElement
 /** @type {__VLS_StyleScopedClasses['error-message']} */ ;
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-input']} */ ;
-/** @type {__VLS_StyleScopedClasses['flatpickr-input']} */ ;
 /** @type {__VLS_StyleScopedClasses['error-message']} */ ;
+/** @type {__VLS_StyleScopedClasses['form-submitted']} */ ;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
@@ -262,9 +225,10 @@ const __VLS_self = (await import('vue')).defineComponent({
             $props: __VLS_makeOptional(props),
             ...props,
             $emit: emit,
+            submitted: submitted,
+            requestResult: requestResult,
             formData: formData,
             errors: errors,
-            dateInput: dateInput,
             formatPhone: formatPhone,
             handlePhoneKeydown: handlePhoneKeydown,
             validateAge: validateAge,
