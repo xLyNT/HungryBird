@@ -17,7 +17,7 @@
           <ul>
             <li> зарегистрируйся</li>
             <li> пройди инструктаж</li>
-            <li class="menu"> выучи меню (мы поможем) <div class="download-button">скачать меню</div></li>
+            <li class="menu"> выучи меню (мы поможем) <a class="download-button" href="https://disk.yandex.ru/i/A9uKDCYL3vmboA" target="_blank">скачать меню</a></li>
             <li> выбери свободную и удобную для тебя дату</li>
             <li> запишись на смену</li>
           </ul>
